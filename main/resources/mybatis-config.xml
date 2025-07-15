@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+<settings>
+        <setting name="lazyLoadingEnabled" value="true"/>
+        <setting name="logImpl" value="STDOUT_LOGGING"/>
+        <setting name="aggressiveLazyLoading" value="false"/>
+        <setting name="mapUnderscoreToCamelCase" value="true" />
+    </settings>
+<!--    <typeHandlers>-->
+<!--        <typeHandler handler="com.mignon.spring.handler.MybatisTypeHandler"/>-->
+<!--    </typeHandlers>-->
+<!--    <environments default="development">-->
+<!--        <environment id="development">-->
+<!--            <transactionManager type="JDBC"/>-->
+<!--            <dataSource type="POOLED">-->
+<!--                <property name="driver" value="${}"/>-->
+<!--            </dataSource>-->
+<!--        </environment>-->
+<!--    </environments>-->
+<!--    <plugins>-->
+<!--        <plugin interceptor="com.github.pagehelper.PageHelper">-->
+<!--&lt;!&ndash;            方言&ndash;&gt;-->
+<!--            <property name="dialect" value="mysql"/>-->
+<!--        </plugin>-->
+<!--    </plugins>-->
+<!--
+设置分页
+
+            @param:目前页  @param: 每页条数
+PageHelper.startPage(1,3)
+-->
+</configuration>

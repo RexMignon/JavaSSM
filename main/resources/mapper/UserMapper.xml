@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.mignon.spring.mapper.UserMapper">
+
+<!--    查-->
+    <select id="findAll" resultType="com.mignon.spring.domain.User">
+        select * from user
+    </select>
+<!--    增-->
+    <insert id="add" parameterType="com.mignon.spring.entity.dto.RUserDTO">
+        insert into user (name, password)
+        VALUES (#{name}, #{password});
+    </insert>
+
+    <update id="updatePassWd" parameterType="com.mignon.spring.entity.dto.RUserDTO">
+        update user set password = #{password} where name = #{name}
+    </update>
+
+    <select id="selectUserByName" parameterType="string" resultType="com.mignon.spring.domain.User">
+        select * from user where name = #{name}
+    </select>
+
+
+
+    <delete id="deleteUserById" parameterType="integer">
+        delete from user WHERE id = #{id}
+    </delete>
+<!--
+如果某个参数为null的情况下,假设id为null.(PS.为何为null常见场景就是当且仅当用户需要查询筛选时
+如若id不需要筛选,就任意, 此时id为空
+)极有可能会查询不到数据. 类似于
+select * from user where id = null and name = xxx and password = xxx
+
+-->
+    <select id="selectCase" parameterType="com.mignon.spring.entity.dto.RUserDTO" resultType="com.mignon.spring.domain.User">
+        select * from user
+            <where>
+                <if test="id!=null">
+                    and id = #{id}
+                </if>
+                <if test="name!=null">
+                    and name = #{name}
+                </if>
+                <if test="password!=null">
+                    and password= #{password}
+                </if>
+            </where>
+    </select>
+<!--
+查询某字段 假设为id,为1 or 2 or 3这种的时候
+select * from user where id in ()
+里面可能很多数
+<foreach collection="list">
+
+            </foreach>数组写array
+-->
+    <select id="selectIds" parameterType="list" resultType="com.mignon.spring.domain.User">
+        <where>
+            <foreach collection="list" open="id in(" close=")" item="id" separator=",">
+                #{id}
+            </foreach>
+        </where>
+    </select>
+<!--
+解耦-> sql语句的抽取
+-->
+    <sql id="selectUser">
+        select * from user
+    </sql>
+    <select id="test1" parameterType="com.mignon.spring.entity.dto.RUserDTO">
+        <include refid="selectUser"/>
+    </select>
+
+<!--
+数据类型的转换
+typeHandlers标签
+自定义类型转换器
+@see com.mignon.spring.handler
+-->
+<!--
+    多表查询
+-->
+    <!--
+一对一
+    例如 : select *,o.id as oid,u.id as uid from order as o,user as u where o.id=u.id;
+-->
+<resultMap id="ordMap" type="com.mignon.spring.domain.Order">
+<!--
+column:表的数据名称
+ property:实体Domain类的名称
+ 手动映射
+-->
+<!--    主键用id, 其他普通的用result-->
+    <id column="oid" property="id" />
+<!--    如果不进行匹配就通过user.id-->
+<!--    <id column="uid" property="user.id"/>-->
+<!--    匹配-->
+    <association property="user" javaType="com.mignon.spring.domain.User">
+        <id column="uid" property="id"/>
+    </association>
+</resultMap>
+<!--
+一对多 一个用户多个订单
+-->
+
+    <resultMap id="uMap" type="com.mignon.spring.domain.User">
+        <id column="uid" property="id"/>
+        <result column="username" property="username"/>
+        <result column="password" property="password"/>
+<!--        配置集合 订单集合
+            property集合名称 注意对应
+            ofType 类型,集合中的数据类型是谁
+-->
+        <collection property="orderList" ofType="com.mignon.spring.domain.Order">
+            <id column="oid" property="id"/>
+<!--            .....-->
+        </collection>
+    </resultMap>
+
+
+</mapper>

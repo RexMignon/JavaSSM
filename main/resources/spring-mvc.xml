@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+
+http://www.springframework.org/schema/mvc
+http://www.springframework.org/schema/mvc/spring-mvc.xsd
+
+http://www.springframework.org/schema/aop
+http://www.springframework.org/schema/aop/spring-aop.xsd
+
+http://www.springframework.org/schema/context
+  http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!--    Cotroller的组件扫描-->
+    <context:component-scan base-package="com.mignon.spring.controller">
+<!--        过滤器-->
+<!--      include 只包括 exclude 不包括-->
+<!--         <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>-->
+
+    </context:component-scan>
+
+
+
+<!--    配置视图解析器-->
+    <bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+<!--
+SO WHAT IS REQUESTS
+
+
+-->
+<!--    配置处理器适配器 用来将传入的参数转为Dto或者Ao-->
+<!--
+<bean id="handlerAdapter" class="org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter">
+    <property name="messageConverters">
+        <list>
+            <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter"/>
+        </list>
+
+    </property>
+</bean>
+
+-->
+<!--使用mvc:annotation=dirven可以不用配置这些,-->
+    <mvc:annotation-driven conversion-service="converterService" validator="validator"/>
+    <bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean"/>
+
+<!--    开放对资源的访问-->
+<!--    mapping是映射地址,location 是哪个目录下的资源对外开放-->
+<!--    <mvc:resources mapping="/js/**" location="/js/"/>-->
+<!--    Spring MVC 找不到的话 就交给原始的容器(这里是Tomcat)-->
+    <mvc:default-servlet-handler/>
+
+<!--    声明时间转换器 (将yyyy-MM-dd格式转为Date)-->
+    <bean id="converterService" class="org.springframework.context.support.ConversionServiceFactoryBean">
+        <property name="converters">
+            <list>
+                <bean class="com.mignon.spring.converter.DateConverter"/>
+            </list>
+        </property>
+    </bean>
+
+    <context:property-placeholder location="classpath:date.properties"/>
+<!--    配置文件上传解析器-->
+    <bean id="multipartResolver"
+          class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <property name="maxUploadSize" value="5242800"/>
+        <property name="maxUploadSizePerFile" value="5242800"/>
+        <property name="defaultEncoding" value="UTF-8"/>
+    </bean>
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <mvc:mapping path="/**"/>
+            <mvc:exclude-mapping path="/user/"/>
+            <bean class="com.mignon.spring.interceptor.TestInterceptor"/>
+        </mvc:interceptor>
+    </mvc:interceptors>
+<!--
+简单异常处理器,其中
+<property name="defaultErrorView" value="error"/> 是默认异常视图,即找不到自定义异常
+ <property name="exceptionMappings">的里面自定义视图时就抛出default View
+-->
+<!--    <bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">-->
+<!--        <property name="defaultErrorView" value="error"/>-->
+<!--        <property name="exceptionMappings">-->
+<!--            <map>-->
+<!--                <entry key="java.lang.NullPointerException" value="error"/>-->
+<!--            </map>-->
+<!--        </property>-->
+<!--     </bean>-->
+        <bean class="com.mignon.spring.resolver.MyExceptionResolver"/>
+        <aop:aspectj-autoproxy proxy-target-class="true"/>
+</beans>
+
